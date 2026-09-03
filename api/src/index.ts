@@ -1,5 +1,6 @@
 // index.ts — app entrypoint.
 import express from 'express';
+import cors from 'cors';
 import * as dotenv from 'dotenv';
 import { casesRouter } from './routes/cases';
 import { financialsRouter } from './routes/financials';
@@ -10,6 +11,10 @@ import { staffRouter } from './routes/staff';
 dotenv.config();
 
 const app = express();
+// Restrict to the dashboard's own origin(s) — comma-separated in .env so
+// prod/staging frontend URLs can be added without a code change.
+const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173').split(',');
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 app.get('/health', async (_req, res) => {

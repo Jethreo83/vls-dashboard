@@ -83,7 +83,11 @@ export async function handleGoogleLogin(req: Request, res: Response) {
   });
 
   if (!staffRow) {
-    return res.status(403).json({ error: 'not_provisioned', message: 'No active staff_user row for this email. An admin must provision access.' });
+    return res.status(403).json({
+      error: 'not_provisioned',
+      message: `No active staff_user row for ${email}. An admin must provision access.`,
+      attempted_email: email,
+    });
   }
 
   const session: StaffSession = {
