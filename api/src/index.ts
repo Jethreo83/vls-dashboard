@@ -4,6 +4,8 @@ import * as dotenv from 'dotenv';
 import { casesRouter } from './routes/cases';
 import { financialsRouter } from './routes/financials';
 import { pool } from './db';
+import { handleGoogleLogin, requireAuth, requireRole } from './auth';
+import { staffRouter } from './routes/staff';
 
 dotenv.config();
 
@@ -19,8 +21,13 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-app.use('/cases', casesRouter);
-app.use('/financials', financialsRouter);
+// Auth route is intentionally open — it's how you GET a token.
+app.post('/auth/google', handleGoogleLogin);
+
+// Everything else requires a valid staff session.
+app.use('/cases', requireAuth, casesRouter);
+app.use('/financials', requireAuth, financialsRouter);
+app.use('/staff', requireAuth, requireRole('admin'), staffRouter);
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err);
