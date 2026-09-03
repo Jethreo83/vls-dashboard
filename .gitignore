@@ -1,0 +1,23 @@
+# Secrets — never commit
+.env
+.env.*
+*.pem
+*credentials*.json
+*token*.json
+client_secret*.json
+
+# Client-derived / real data — anonymized fixtures only belong in git
+data/snapshots/
+*.dump
+*.sql.gz
+
+# Node / Python
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
