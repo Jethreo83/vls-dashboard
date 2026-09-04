@@ -101,23 +101,44 @@ export async function handleGoogleLogin(req: Request, res: Response) {
 }
 
 /**
- * Middleware: requires a valid Bearer JWT, attaches req.staff.
- * Every route under /cases and /financials should use this — enforced by
- * wiring it as router-level middleware in index.ts, not per-route, so a
- * new route can't accidentally ship unauthenticated.
+ * Middleware: requires a valid Bearer JWT, attaches req.staff. Also
+ * re-checks the staff_user row live on every request (found via
+ * hardening-pass testing: deactivating someone did NOT revoke their
+ * existing token — they stayed fully authenticated for the rest of its
+ * 8h lifetime). The JWT still proves identity/expiry cheaply; this closes
+ * the gap between "deactivated in the DB" and "actually locked out."
+ * Also refreshes role from the DB so a role change takes effect
+ * immediately too, not just deactivation.
  */
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'missing_token' });
   }
   const token = header.slice('Bearer '.length);
+  let decoded: StaffSession;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as unknown as StaffSession;
-    req.staff = decoded;
-    next();
+    decoded = jwt.verify(token, JWT_SECRET) as unknown as StaffSession;
   } catch (err: any) {
     return res.status(401).json({ error: 'invalid_or_expired_token', message: err.message });
+  }
+
+  try {
+    const row = await unsafeOwnerQuery(async (client) => {
+      const result = await client.query(
+        `SELECT role, active FROM vls.staff_user WHERE id = $1`,
+        [decoded.staff_user_id]
+      );
+      return result.rows[0];
+    });
+    if (!row || !row.active) {
+      return res.status(401).json({ error: 'account_deactivated' });
+    }
+    req.staff = { ...decoded, role: row.role };
+    next();
+  } catch (err: any) {
+    // A DB error here must not silently authenticate someone - fail closed.
+    res.status(503).json({ error: 'auth_check_failed', message: err.message });
   }
 }
 

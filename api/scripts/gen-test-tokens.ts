@@ -1,6 +1,14 @@
 // Verifies requireAuth/requireRole behavior without a live Google login —
 // crafts JWTs with the same secret the running server uses and checks
 // middleware behavior directly.
+//
+// IMPORTANT: as of the live-DB-check hardening pass, requireAuth now
+// re-queries vls.staff_user by staff_user_id on every request, so these
+// crafted tokens only work if that ID actually exists (and is active) in
+// whatever DB the API is currently pointed at. staging gets reset often
+// by other build tracks — check `SELECT id, google_email, active FROM
+// vls.staff_user` first if these tokens start getting account_deactivated
+// instead of a real response.
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 dotenv.config();

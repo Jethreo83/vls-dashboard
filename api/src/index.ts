@@ -8,6 +8,7 @@ import { pool } from './db';
 import { handleGoogleLogin, requireAuth, requireRole } from './auth';
 import { staffRouter } from './routes/staff';
 import { tasksRouter } from './routes/tasks';
+import { ah } from './asyncHandler';
 
 dotenv.config();
 
@@ -41,10 +42,10 @@ app.get('/health', async (_req, res) => {
 app.post('/auth/google', handleGoogleLogin);
 
 // Everything else requires a valid staff session.
-app.use('/cases', requireAuth, casesRouter);
-app.use('/financials', requireAuth, financialsRouter);
-app.use('/staff', requireAuth, requireRole('admin'), staffRouter);
-app.use('/tasks', requireAuth, tasksRouter);
+app.use('/cases', ah(requireAuth), casesRouter);
+app.use('/financials', ah(requireAuth), financialsRouter);
+app.use('/staff', ah(requireAuth), requireRole('admin'), staffRouter);
+app.use('/tasks', ah(requireAuth), tasksRouter);
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err);
