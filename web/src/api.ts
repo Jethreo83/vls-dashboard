@@ -100,6 +100,23 @@ export interface Task {
   created_by: string;
 }
 
+export interface AnalyticsSummary {
+  total_cases: number;
+  total_blocked: number;
+  total_overdue_tasks: number;
+  by_court: { court_type: string; count: number }[];
+  by_state: { current_state: string; count: number }[];
+  by_type: { case_type: string; count: number }[];
+  fee_shifting_split: { fee_shifting_eligible: boolean; count: number }[];
+  financials: {
+    cases_with_financials: number;
+    total_gross_recovery: string;
+    total_net_to_client: string;
+    total_costs_confirmed: string;
+    total_costs_pending: string;
+  };
+}
+
 function coerceCaseIds(rows: Case[]): Case[] {
   return rows.map((c) => ({ ...c, id: Number(c.id) }));
 }
@@ -128,4 +145,5 @@ export const api = {
     apiFetch<Task>('/tasks', { method: 'POST', body: JSON.stringify(body) }),
   updateTask: (id: number, body: Partial<Pick<Task, 'title' | 'status' | 'priority' | 'due_date'>>) =>
     apiFetch<Task>(`/tasks/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  getAnalyticsSummary: () => apiFetch<AnalyticsSummary>('/cases/analytics/summary'),
 };

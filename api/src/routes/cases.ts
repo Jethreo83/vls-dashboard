@@ -146,3 +146,49 @@ casesRouter.get('/status/blocked', ah(async (_req: Request, res: Response) => {
   });
   res.json(rows);
 }));
+
+// Analytics summary — real aggregates, not per-case client-side math.
+// Counts by court/state/type plus portfolio-level financial totals from
+// settlement_breakdown. Sparse today (few test cases) but the query is
+// correct regardless of row count.
+casesRouter.get('/analytics/summary', ah(async (_req: Request, res: Response) => {
+  const summary = await withRole('vls_app', async (client) => {
+    const byCourt = await client.query(
+      `SELECT court_type, count(*)::int AS count FROM vls.case GROUP BY court_type`
+    );
+    const byState = await client.query(
+      `SELECT current_state, count(*)::int AS count FROM vls.case GROUP BY current_state`
+    );
+    const byType = await client.query(
+      `SELECT case_type, count(*)::int AS count FROM vls.case GROUP BY case_type`
+    );
+    const financialTotals = await client.query(
+      `SELECT
+         count(*)::int AS cases_with_financials,
+         COALESCE(SUM(gross_recovery), 0) AS total_gross_recovery,
+         COALESCE(SUM(net_to_client), 0) AS total_net_to_client,
+         COALESCE(SUM(costs_confirmed), 0) AS total_costs_confirmed,
+         COALESCE(SUM(costs_pending), 0) AS total_costs_pending
+       FROM vls.settlement_breakdown
+       WHERE gross_recovery IS NOT NULL`
+    );
+    const feeShiftingSplit = await client.query(
+      `SELECT fee_shifting_eligible, count(*)::int AS count FROM vls.case GROUP BY fee_shifting_eligible`
+    );
+    const totalCases = await client.query(`SELECT count(*)::int AS count FROM vls.case`);
+    const totalBlocked = await client.query(`SELECT count(*)::int AS count FROM vls.blocked_cases`);
+    const totalOverdueTasks = await client.query(`SELECT count(*)::int AS count FROM vls.overdue_tasks`);
+
+    return {
+      total_cases: totalCases.rows[0].count,
+      total_blocked: totalBlocked.rows[0].count,
+      total_overdue_tasks: totalOverdueTasks.rows[0].count,
+      by_court: byCourt.rows,
+      by_state: byState.rows,
+      by_type: byType.rows,
+      fee_shifting_split: feeShiftingSplit.rows,
+      financials: financialTotals.rows[0],
+    };
+  });
+  res.json(summary);
+}));
