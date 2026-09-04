@@ -7,6 +7,7 @@ Status values: PENDING (waiting on Jed), APPROVED (Jed said yes, now doing it), 
 ## Current queue
 
 - PENDING: complete-collision needs Jed's decision on receptionist permission scope for Complete Collision (what a receptionist can see/edit vs manager/owner). Bot is correctly holding off building the role-permission logic itself, but is proceeding on the safe subset (role enum, provisioning table shape) that doesn't require knowing the final boundaries.
+- PENDING: elektrica-dashboard needs Jed to pick how the JP litigation state machine gets shared with VLS - (a) shared package/cross-schema reuse of vls.valid_next_states, (b) duplicate the migration into elektrica's own schema, or (c) real service boundary/API call between apps. Bot's own recommendation is (a) - avoids drift between two copies of the same 12-state machine, matches the existing platform.person cross-schema pattern. Full reasoning in elektrica-dashboard/docs/OVERNIGHT_DECISIONS.md. Asked Jed directly via clarify, got no response (he'd already stepped away) - still open.
 
 ## Log
 
