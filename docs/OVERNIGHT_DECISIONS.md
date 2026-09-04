@@ -12,6 +12,9 @@ Status values: PENDING (waiting on Jed), APPROVED (Jed said yes, now doing it), 
 
 ## Log
 
+- 2026-09-04: SPAWNED new locked bot `shell-dashboard` per Jed's instruction, for the thin login+launcher shell (parallel-build instruction step 2). Repo github.com/Jethreo83/shell-dashboard (public from creation), profile at $LOCALAPPDATA/hermes/profiles/shell-dashboard, model Sonnet 5, memory NOT shared with elektrica-dashboard/complete-collision junction per Jed's explicit choice. First task sent: read shared conventions + VLS's auth pattern, produce an ADR before building.
+- 2026-09-04: vls-dashboard, elektrica-dashboard, and complete-collision-dashboard repos all made PUBLIC per Jed's decision, after confirming clean git history (no secrets, no committed .env files, no client data) in all three. Resolves the private-repo access-boundary friction that was blocking complete-collision from reading SHARED_CONVENTIONS.md directly.
+
 - 2026-09-04: complete-collision bot applied migration 001 (collision.customer, collision_app role) to production Neon after Jed's direct confirmation to share the aged-art-92489373 project. Verified via direct query post-apply. Not a pending item - already approved and done, logged here for the audit trail.
 - 2026-09-04: found a process gap, not a decision - the shared "staging" Neon branch (same project) is used by all three build tracks (VLS, Elektrica, Complete Collision), and resets by one track wipe another's uncommitted test data on that branch. Elektrica's rental migration verified successfully on staging but the data was gone by the time of a later check - not lost work (migration script/verify script are safely in git), just needs each bot to check staging state before assuming it's still there. No action needed from Jed - process note for the record.
 - 2026-09-04: RESOLVED - JP litigation state machine: Jed picked option (a), shared/cross-schema reuse of vls.valid_next_states. Elektrica cleared to proceed.
