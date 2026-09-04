@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import CaseListPage from './pages/CaseListPage';
 import CaseDetailPage from './pages/CaseDetailPage';
 import LegalDeadlinesPage from './pages/LegalDeadlinesPage';
+import TaskManagerPage from './pages/TaskManagerPage';
 
 function AppShell() {
   const { token, staff, logout } = useAuth();
@@ -18,6 +19,7 @@ function AppShell() {
           <nav style={{ display: 'flex', gap: 16 }}>
             <Link to="/">Cases</Link>
             <Link to="/deadlines">Legal Deadlines</Link>
+            <Link to="/tasks">Tasks</Link>
           </nav>
         </div>
         <div>
@@ -29,6 +31,7 @@ function AppShell() {
         <Route path="/" element={<CaseListPage />} />
         <Route path="/cases/:id" element={<CaseDetailPage />} />
         <Route path="/deadlines" element={<LegalDeadlinesPage />} />
+        <Route path="/tasks" element={<TaskManagerPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

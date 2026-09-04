@@ -78,6 +78,21 @@ export interface SettlementBreakdown {
   net_to_client: string;
 }
 
+export interface Task {
+  id: number;
+  case_id: number | null;
+  title: string;
+  description: string | null;
+  status: 'open' | 'in_progress' | 'done' | 'cancelled';
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  assigned_to: number | null;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  created_by: string;
+}
+
 export const api = {
   listCases: () => apiFetch<Case[]>('/cases'),
   getCase: (id: number) => apiFetch<Case>(`/cases/${id}`),
@@ -88,4 +103,9 @@ export const api = {
       throw e;
     }),
   getBlockedCases: () => apiFetch<any[]>('/cases/status/blocked'),
+  listTasks: () => apiFetch<Task[]>('/tasks'),
+  createTask: (body: { title: string; case_id?: number; priority?: string; due_date?: string; created_by: string }) =>
+    apiFetch<Task>('/tasks', { method: 'POST', body: JSON.stringify(body) }),
+  updateTask: (id: number, body: Partial<Pick<Task, 'title' | 'status' | 'priority' | 'due_date'>>) =>
+    apiFetch<Task>(`/tasks/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
 };
