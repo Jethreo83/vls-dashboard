@@ -12,13 +12,13 @@ export default function LoginPage() {
         justifyContent: 'center',
         height: '100vh',
         gap: 20,
-        background: 'linear-gradient(180deg, #680d1e 0%, #4a0916 100%)',
+        background: 'linear-gradient(180deg, #800020 0%, #5c0017 100%)',
       }}
     >
-      <VlsMark size={56} />
+      <VlsMark size={56} background={false} />
       <div style={{ textAlign: 'center' }}>
         <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: '-0.2px' }}>Victory Legal Solutions</h1>
-        <p style={{ color: '#e6c288', fontSize: 12, letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: 4, fontWeight: 600 }}>
+        <p style={{ color: '#d4b896', fontSize: 12, letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: 4, fontWeight: 600 }}>
           Dashboard
         </p>
       </div>

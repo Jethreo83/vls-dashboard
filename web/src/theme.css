@@ -1,13 +1,15 @@
 /* theme.css — Victory Legal Solutions brand system.
-   Colors sourced directly from the firm's actual website header:
-   maroon #680d1e (primary), gold/tan #e6c288 (accent), white on maroon. */
+   Colors sourced from the firm's actual logo file: maroon #800020
+   (primary), warm gold/beige #d4b896 (accent). Slightly different from
+   the earlier website-header photo reading (#680d1e/#e6c288) - the logo
+   file is the more reliable source, using it as ground truth. */
 
 :root {
-  --vls-maroon: #680d1e;
-  --vls-maroon-dark: #4a0916;
-  --vls-maroon-light: #7c1226;
-  --vls-gold: #e6c288;
-  --vls-gold-dark: #cca466;
+  --vls-maroon: #800020;
+  --vls-maroon-dark: #5c0017;
+  --vls-maroon-light: #99102f;
+  --vls-gold: #d4b896;
+  --vls-gold-dark: #b8946a;
   --vls-cream: #faf7f0;
   --vls-ink: #1a1512;
   --vls-gray: #6b6560;
