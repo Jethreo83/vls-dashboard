@@ -117,6 +117,14 @@ export interface AnalyticsSummary {
   };
 }
 
+export interface StaffUser {
+  id: number;
+  google_email: string;
+  role: 'attorney' | 'paralegal' | 'admin';
+  active: boolean;
+  created_at: string;
+}
+
 function coerceCaseIds(rows: Case[]): Case[] {
   return rows.map((c) => ({ ...c, id: Number(c.id) }));
 }
@@ -146,4 +154,9 @@ export const api = {
   updateTask: (id: number, body: Partial<Pick<Task, 'title' | 'status' | 'priority' | 'due_date'>>) =>
     apiFetch<Task>(`/tasks/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   getAnalyticsSummary: () => apiFetch<AnalyticsSummary>('/cases/analytics/summary'),
+  listStaff: () => apiFetch<StaffUser[]>('/staff').then((rows) => rows.map((s) => ({ ...s, id: Number(s.id) }))),
+  provisionStaff: (body: { google_email: string; role: StaffUser['role'] }) =>
+    apiFetch<StaffUser>('/staff', { method: 'POST', body: JSON.stringify(body) }),
+  setStaffActive: (id: number, active: boolean) =>
+    apiFetch<StaffUser>(`/staff/${id}`, { method: 'PATCH', body: JSON.stringify({ active }) }),
 };

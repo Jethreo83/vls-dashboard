@@ -6,6 +6,7 @@ import CaseDetailPage from './pages/CaseDetailPage';
 import LegalDeadlinesPage from './pages/LegalDeadlinesPage';
 import TaskManagerPage from './pages/TaskManagerPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import StaffAdminPage from './pages/StaffAdminPage';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Cases' },
@@ -14,11 +15,15 @@ const NAV_ITEMS = [
   { to: '/analytics', label: 'Analytics' },
 ];
 
+const ADMIN_NAV_ITEM = { to: '/staff', label: 'Staff' };
+
 function AppShell() {
   const { token, staff, logout } = useAuth();
   const location = useLocation();
 
   if (!token) return <LoginPage />;
+
+  const navItems = staff?.role === 'admin' ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
 
   return (
     <div className="vls-app">
@@ -27,7 +32,7 @@ function AppShell() {
           <img src="/vls-logo.jpg" alt="Victory Legal Solutions" />
         </div>
         <nav className="vls-nav">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -40,7 +45,7 @@ function AppShell() {
       </aside>
       <main className="vls-main">
         <div className="vls-topbar">
-          <h1>{NAV_ITEMS.find((n) => n.to === location.pathname)?.label ?? 'Case'}</h1>
+          <h1>{navItems.find((n) => n.to === location.pathname)?.label ?? 'Case'}</h1>
           <div>
             <span className="vls-user-chip">{staff?.google_email} · {staff?.role}</span>
             <button className="vls-signout" onClick={logout}>Sign out</button>
@@ -52,6 +57,7 @@ function AppShell() {
           <Route path="/deadlines" element={<LegalDeadlinesPage />} />
           <Route path="/tasks" element={<TaskManagerPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/staff" element={<StaffAdminPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

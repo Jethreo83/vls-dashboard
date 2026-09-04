@@ -62,6 +62,14 @@ staffRouter.patch('/:id', ah(async (req: Request, res: Response) => {
   if (!parsed.success) {
     return res.status(400).json({ error: 'invalid_body', details: parsed.error.flatten() });
   }
+
+  // Guard against self-lockout: an admin deactivating their own account
+  // via a direct API call (bypassing the frontend's confirm dialog) would
+  // leave them unable to reactivate themselves or anyone else.
+  if (!parsed.data.active && req.staff?.staff_user_id === id) {
+    return res.status(400).json({ error: 'cannot_deactivate_self' });
+  }
+
   const row = await unsafeOwnerQuery(async (client) => {
     const result = await client.query(
       `UPDATE vls.staff_user SET active = $1 WHERE id = $2
