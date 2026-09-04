@@ -8,14 +8,16 @@ import { parseId } from '../validators';
 
 export const financialsRouter = Router();
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 const createCostSchema = z.object({
-  case_id: z.number().int().positive(),
+  case_id: z.number().int().positive().safe(),
   category: z.enum([
     'medical', 'filing_fee', 'expert_witness', 'deposition', 'mediation',
     'process_serving', 'court_reporter', 'other',
   ]),
   amount: z.number().nonnegative(),
-  incurred_date: z.string(), // ISO date
+  incurred_date: z.string().regex(ISO_DATE_RE, 'must be YYYY-MM-DD'),
   description: z.string().optional(),
   recoverable: z.boolean().default(false),
   source: z.enum(['manual', 'claims_inbox', 'court_efile', 'system']).default('manual'),

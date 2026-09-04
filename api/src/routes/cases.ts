@@ -20,7 +20,7 @@ const createCaseSchema = z.object({
   ]).optional(),
   is_first_party: z.boolean(),
   court_type: z.enum(['pre_suit', 'jp', 'district']),
-  client_person_id: z.number().int().positive().optional(),
+  client_person_id: z.number().int().positive().safe().optional(),
   intake_source: z.enum(['adobe', 'jotform', 'manual']).optional(),
   created_by: z.string().min(1),
 });

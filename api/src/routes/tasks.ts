@@ -9,13 +9,15 @@ import { parseId } from '../validators';
 
 export const tasksRouter = Router();
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 const createTaskSchema = z.object({
-  case_id: z.number().int().positive().optional(),
+  case_id: z.number().int().positive().safe().optional(),
   title: z.string().min(1),
   description: z.string().optional(),
   priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),
-  assigned_to: z.number().int().positive().optional(),
-  due_date: z.string().optional(), // ISO date
+  assigned_to: z.number().int().positive().safe().optional(),
+  due_date: z.string().regex(ISO_DATE_RE, 'must be YYYY-MM-DD').optional(),
   created_by: z.string().min(1),
 });
 
@@ -79,8 +81,8 @@ const updateTaskSchema = z.object({
   description: z.string().optional(),
   status: z.enum(['open', 'in_progress', 'done', 'cancelled']).optional(),
   priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
-  assigned_to: z.number().int().positive().nullable().optional(),
-  due_date: z.string().nullable().optional(),
+  assigned_to: z.number().int().positive().safe().nullable().optional(),
+  due_date: z.string().regex(ISO_DATE_RE, 'must be YYYY-MM-DD').nullable().optional(),
 });
 
 tasksRouter.patch('/:id', ah(async (req: Request, res: Response) => {
