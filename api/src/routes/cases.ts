@@ -6,6 +6,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { withRole } from '../db';
 import { ah } from '../asyncHandler';
+import { parseId } from '../validators';
 
 export const casesRouter = Router();
 
@@ -52,8 +53,8 @@ casesRouter.post('/', ah(async (req: Request, res: Response) => {
 }));
 
 casesRouter.get('/:id', ah(async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (!Number.isInteger(id)) return res.status(400).json({ error: 'invalid_id' });
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ error: 'invalid_id' });
   const row = await withRole('vls_app', async (client) => {
     const result = await client.query(
       `SELECT * FROM vls.case WHERE id = $1`, [id]
@@ -64,11 +65,16 @@ casesRouter.get('/:id', ah(async (req: Request, res: Response) => {
   res.json(row);
 }));
 
+const COURT_TYPES = ['pre_suit', 'jp', 'district'] as const;
+
 casesRouter.get('/', ah(async (req: Request, res: Response) => {
   const courtType = typeof req.query.court_type === 'string' ? req.query.court_type : undefined;
+  if (courtType !== undefined && !COURT_TYPES.includes(courtType as any)) {
+    return res.status(400).json({ error: 'invalid_court_type', allowed: COURT_TYPES });
+  }
   const rows = await withRole('vls_app', async (client) => {
     const result = courtType
-      ? await client.query(`SELECT * FROM vls.case WHERE court_type = $1 ORDER BY id`, [courtType])
+      ? await client.query(`SELECT * FROM vls.case WHERE court_type = $1::vls.court_type ORDER BY id`, [courtType])
       : await client.query(`SELECT * FROM vls.case ORDER BY id`);
     return result.rows;
   });
@@ -97,8 +103,8 @@ const createEventSchema = z.object({
 });
 
 casesRouter.post('/:id/events', ah(async (req: Request, res: Response) => {
-  const caseId = Number(req.params.id);
-  if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
+  const caseId = parseId(req.params.id);
+  if (caseId === null) return res.status(400).json({ error: 'invalid_id' });
 
   const parsed = createEventSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -127,8 +133,8 @@ casesRouter.post('/:id/events', ah(async (req: Request, res: Response) => {
 }));
 
 casesRouter.get('/:id/events', ah(async (req: Request, res: Response) => {
-  const caseId = Number(req.params.id);
-  if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
+  const caseId = parseId(req.params.id);
+  if (caseId === null) return res.status(400).json({ error: 'invalid_id' });
   const rows = await withRole('vls_app', async (client) => {
     const result = await client.query(
       `SELECT * FROM vls.case_event WHERE case_id = $1 ORDER BY id`, [caseId]

@@ -7,6 +7,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { unsafeOwnerQuery } from '../db';
 import { ah } from '../asyncHandler';
+import { parseId } from '../validators';
 
 export const staffRouter = Router();
 
@@ -56,8 +57,8 @@ const deactivateSchema = z.object({
 // intact (case_event.created_by references stay valid) and this can't be
 // used to erase who did what.
 staffRouter.patch('/:id', ah(async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (!Number.isInteger(id)) return res.status(400).json({ error: 'invalid_id' });
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ error: 'invalid_id' });
   const parsed = deactivateSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'invalid_body', details: parsed.error.flatten() });

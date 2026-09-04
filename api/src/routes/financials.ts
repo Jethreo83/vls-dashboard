@@ -4,6 +4,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { withRole } from '../db';
 import { ah } from '../asyncHandler';
+import { parseId } from '../validators';
 
 export const financialsRouter = Router();
 
@@ -55,8 +56,8 @@ financialsRouter.post('/costs', ah(async (req: Request, res: Response) => {
 }));
 
 financialsRouter.get('/costs/:caseId', ah(async (req: Request, res: Response) => {
-  const caseId = Number(req.params.caseId);
-  if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
+  const caseId = parseId(req.params.caseId);
+  if (caseId === null) return res.status(400).json({ error: 'invalid_id' });
   const rows = await withRole('vls_app', async (client) => {
     const result = await client.query(
       `SELECT * FROM vls.case_cost WHERE case_id = $1 ORDER BY incurred_date`, [caseId]
@@ -75,8 +76,8 @@ const upsertFinancialSchema = z.object({
 });
 
 financialsRouter.put('/:caseId', ah(async (req: Request, res: Response) => {
-  const caseId = Number(req.params.caseId);
-  if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
+  const caseId = parseId(req.params.caseId);
+  if (caseId === null) return res.status(400).json({ error: 'invalid_id' });
   const parsed = upsertFinancialSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'invalid_body', details: parsed.error.flatten() });
@@ -107,8 +108,8 @@ financialsRouter.put('/:caseId', ah(async (req: Request, res: Response) => {
 
 // The one-button settlement breakdown — direct pass-through of the view.
 financialsRouter.get('/breakdown/:caseId', ah(async (req: Request, res: Response) => {
-  const caseId = Number(req.params.caseId);
-  if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
+  const caseId = parseId(req.params.caseId);
+  if (caseId === null) return res.status(400).json({ error: 'invalid_id' });
   const row = await withRole('vls_app', async (client) => {
     const result = await client.query(
       `SELECT * FROM vls.settlement_breakdown WHERE case_id = $1`, [caseId]

@@ -5,6 +5,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { withRole } from '../db';
 import { ah } from '../asyncHandler';
+import { parseId } from '../validators';
 
 export const tasksRouter = Router();
 
@@ -42,9 +43,19 @@ tasksRouter.post('/', ah(async (req: Request, res: Response) => {
   }
 }));
 
+const TASK_STATUSES = ['open', 'in_progress', 'done', 'cancelled'] as const;
+
 tasksRouter.get('/', ah(async (req: Request, res: Response) => {
   const status = typeof req.query.status === 'string' ? req.query.status : undefined;
-  const caseId = req.query.case_id ? Number(req.query.case_id) : undefined;
+  if (status !== undefined && !TASK_STATUSES.includes(status as any)) {
+    return res.status(400).json({ error: 'invalid_status', allowed: TASK_STATUSES });
+  }
+  let caseId: number | undefined;
+  if (req.query.case_id !== undefined) {
+    const parsed = parseId(String(req.query.case_id));
+    if (parsed === null) return res.status(400).json({ error: 'invalid_case_id' });
+    caseId = parsed;
+  }
   const rows = await withRole('vls_app', async (client) => {
     let query = `SELECT * FROM vls.task WHERE 1=1`;
     const params: any[] = [];
@@ -73,8 +84,8 @@ const updateTaskSchema = z.object({
 });
 
 tasksRouter.patch('/:id', ah(async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (!Number.isInteger(id)) return res.status(400).json({ error: 'invalid_id' });
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ error: 'invalid_id' });
   const parsed = updateTaskSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'invalid_body', details: parsed.error.flatten() });
