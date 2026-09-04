@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth';
+import { VlsMark } from './VlsMark';
 import LoginPage from './pages/LoginPage';
 import CaseListPage from './pages/CaseListPage';
 import CaseDetailPage from './pages/CaseDetailPage';
@@ -7,36 +8,58 @@ import LegalDeadlinesPage from './pages/LegalDeadlinesPage';
 import TaskManagerPage from './pages/TaskManagerPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 
+const NAV_ITEMS = [
+  { to: '/', label: 'Cases' },
+  { to: '/deadlines', label: 'Legal Deadlines' },
+  { to: '/tasks', label: 'Tasks' },
+  { to: '/analytics', label: 'Analytics' },
+];
+
 function AppShell() {
   const { token, staff, logout } = useAuth();
+  const location = useLocation();
 
   if (!token) return <LoginPage />;
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: 'system-ui, sans-serif' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid #eee', paddingBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <h1 style={{ margin: 0, fontSize: 20 }}>VLS Dashboard</h1>
-          <nav style={{ display: 'flex', gap: 16 }}>
-            <Link to="/">Cases</Link>
-            <Link to="/deadlines">Legal Deadlines</Link>
-            <Link to="/tasks">Tasks</Link>
-            <Link to="/analytics">Analytics</Link>
-          </nav>
+    <div className="vls-app">
+      <aside className="vls-sidebar">
+        <div className="vls-brand">
+          <VlsMark size={30} />
+          <div className="vls-brand-text">
+            Victory Legal
+            <span className="sub">Solutions Dashboard</span>
+          </div>
         </div>
-        <div>
-          <span style={{ marginRight: 16, color: '#666' }}>{staff?.google_email} ({staff?.role})</span>
-          <button onClick={logout}>Sign out</button>
+        <nav className="vls-nav">
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={location.pathname === item.to ? 'active' : ''}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </aside>
+      <main className="vls-main">
+        <div className="vls-topbar">
+          <h1>{NAV_ITEMS.find((n) => n.to === location.pathname)?.label ?? 'Case'}</h1>
+          <div>
+            <span className="vls-user-chip">{staff?.google_email} · {staff?.role}</span>
+            <button className="vls-signout" onClick={logout}>Sign out</button>
+          </div>
         </div>
-      </header>
-      <Routes>
-        <Route path="/" element={<CaseListPage />} />
-        <Route path="/cases/:id" element={<CaseDetailPage />} />
-        <Route path="/deadlines" element={<LegalDeadlinesPage />} />
-        <Route path="/tasks" element={<TaskManagerPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<CaseListPage />} />
+          <Route path="/cases/:id" element={<CaseDetailPage />} />
+          <Route path="/deadlines" element={<LegalDeadlinesPage />} />
+          <Route path="/tasks" element={<TaskManagerPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
     </div>
   );
 }

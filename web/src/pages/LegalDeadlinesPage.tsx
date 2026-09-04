@@ -19,53 +19,48 @@ export default function LegalDeadlinesPage() {
     Promise.all([api.getBlockedCases(), api.listCases()])
       .then(([blockedRows, allCases]) => {
         setBlocked(blockedRows);
-        // Pre-suit cases with a demand sent — earliest_file_date is the
-        // pressure point (60 days after demand, per vls-domain-rules).
-        setPreSuitCases(
-          allCases.filter((c) => c.court_type === 'pre_suit')
-        );
+        setPreSuitCases(allCases.filter((c) => c.court_type === 'pre_suit'));
       })
       .catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <p style={{ color: 'red' }}>Failed to load: {error}</p>;
+  if (error) return <p style={{ color: 'var(--vls-danger)' }}>Failed to load: {error}</p>;
   if (!blocked || !preSuitCases) return <p>Loading…</p>;
 
   return (
     <div>
-      <p><Link to="/">&larr; Back to cases</Link></p>
-      <h2>Legal Deadlines</h2>
-      <p style={{ color: '#666', fontSize: 14 }}>
+      <p><Link to="/" className="vls-link">&larr; Back to cases</Link></p>
+      <p style={{ color: 'var(--vls-gray)', fontSize: 13.5, marginTop: 12, marginBottom: 24 }}>
         This page surfaces what the case data already shows — blocked cases and
         pre-suit notice-period dates. It does not compute statute-of-limitations
         or procedural deadlines; those require attorney review.
       </p>
 
-      <section style={{ marginTop: 24 }}>
-        <h3 style={{ color: blocked.length > 0 ? '#b00' : undefined }}>
+      <section>
+        <h3 style={{ color: blocked.length > 0 ? 'var(--vls-danger)' : 'var(--vls-maroon)', fontSize: 15, marginBottom: 12 }}>
           Blocked Cases ({blocked.length})
         </h3>
         {blocked.length === 0 ? (
-          <p style={{ color: '#666' }}>No blocked cases.</p>
+          <p style={{ color: 'var(--vls-gray)' }}>No blocked cases.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="vls-table">
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '2px solid #ccc' }}>
-                <th style={{ padding: 8 }}>Case</th>
-                <th style={{ padding: 8 }}>Court</th>
-                <th style={{ padding: 8 }}>State</th>
-                <th style={{ padding: 8 }}>Block Reason</th>
-                <th style={{ padding: 8 }} />
+              <tr>
+                <th>Case</th>
+                <th>Court</th>
+                <th>State</th>
+                <th>Block Reason</th>
+                <th />
               </tr>
             </thead>
             <tbody>
               {blocked.map((b) => (
-                <tr key={b.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: 8 }}>#{b.id} — {b.case_type.replace(/_/g, ' ')}</td>
-                  <td style={{ padding: 8, textTransform: 'uppercase' }}>{b.court_type}</td>
-                  <td style={{ padding: 8 }}>{b.current_state.replace(/_/g, ' ')}</td>
-                  <td style={{ padding: 8, color: '#b00' }}>{b.block_reason}</td>
-                  <td style={{ padding: 8 }}><Link to={`/cases/${b.id}`}>View</Link></td>
+                <tr key={b.id}>
+                  <td>#{b.id} — {b.case_type.replace(/_/g, ' ')}</td>
+                  <td><span className="vls-badge court">{b.court_type}</span></td>
+                  <td>{b.current_state.replace(/_/g, ' ')}</td>
+                  <td style={{ color: 'var(--vls-danger)', fontWeight: 600 }}>{b.block_reason}</td>
+                  <td><Link to={`/cases/${b.id}`} className="vls-link">View →</Link></td>
                 </tr>
               ))}
             </tbody>
@@ -74,28 +69,28 @@ export default function LegalDeadlinesPage() {
       </section>
 
       <section style={{ marginTop: 32 }}>
-        <h3>Pre-Suit Cases (Notice Period Tracking)</h3>
+        <h3 style={{ fontSize: 15, color: 'var(--vls-maroon)', marginBottom: 12 }}>Pre-Suit Cases (Notice Period Tracking)</h3>
         {preSuitCases.length === 0 ? (
-          <p style={{ color: '#666' }}>No pre-suit cases.</p>
+          <p style={{ color: 'var(--vls-gray)' }}>No pre-suit cases.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="vls-table">
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '2px solid #ccc' }}>
-                <th style={{ padding: 8 }}>Case</th>
-                <th style={{ padding: 8 }}>State</th>
-                <th style={{ padding: 8 }}>Demand Sent</th>
-                <th style={{ padding: 8 }}>Earliest File Date</th>
-                <th style={{ padding: 8 }} />
+              <tr>
+                <th>Case</th>
+                <th>State</th>
+                <th>Demand Sent</th>
+                <th>Earliest File Date</th>
+                <th />
               </tr>
             </thead>
             <tbody>
               {preSuitCases.map((c: any) => (
-                <tr key={c.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: 8 }}>#{c.id} — {c.case_type.replace(/_/g, ' ')}</td>
-                  <td style={{ padding: 8 }}>{c.current_state.replace(/_/g, ' ')}</td>
-                  <td style={{ padding: 8 }}>{c.demand_sent_date ?? '—'}</td>
-                  <td style={{ padding: 8 }}>{c.earliest_file_date ?? '—'}</td>
-                  <td style={{ padding: 8 }}><Link to={`/cases/${c.id}`}>View</Link></td>
+                <tr key={c.id}>
+                  <td>#{c.id} — {c.case_type.replace(/_/g, ' ')}</td>
+                  <td>{c.current_state.replace(/_/g, ' ')}</td>
+                  <td>{c.demand_sent_date ?? '—'}</td>
+                  <td>{c.earliest_file_date ?? '—'}</td>
+                  <td><Link to={`/cases/${c.id}`} className="vls-link">View →</Link></td>
                 </tr>
               ))}
             </tbody>

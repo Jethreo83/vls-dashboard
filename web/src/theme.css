@@ -1,0 +1,278 @@
+/* theme.css — Victory Legal Solutions brand system.
+   Colors sourced directly from the firm's actual website header:
+   maroon #680d1e (primary), gold/tan #e6c288 (accent), white on maroon. */
+
+:root {
+  --vls-maroon: #680d1e;
+  --vls-maroon-dark: #4a0916;
+  --vls-maroon-light: #7c1226;
+  --vls-gold: #e6c288;
+  --vls-gold-dark: #cca466;
+  --vls-cream: #faf7f0;
+  --vls-ink: #1a1512;
+  --vls-gray: #6b6560;
+  --vls-gray-light: #e8e2d8;
+  --vls-white: #ffffff;
+  --vls-danger: #a3402f;
+  --vls-danger-bg: #f7e5e1;
+  --vls-success: #3d7a5c;
+  --vls-radius: 8px;
+  --vls-shadow: 0 1px 3px rgba(104, 13, 30, 0.08), 0 1px 2px rgba(104, 13, 30, 0.06);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: var(--vls-cream);
+  color: var(--vls-ink);
+}
+
+.vls-app { display: flex; min-height: 100vh; }
+
+/* --------------------------------------------------------------------- */
+/* Sidebar                                                                */
+/* --------------------------------------------------------------------- */
+
+.vls-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--vls-maroon) 0%, var(--vls-maroon-dark) 100%);
+  padding: 28px 18px;
+  color: var(--vls-white);
+}
+
+.vls-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+
+.vls-brand-mark {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.vls-brand-text {
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  color: var(--vls-white);
+  line-height: 1.15;
+}
+
+.vls-brand-text .sub {
+  display: block;
+  font-weight: 500;
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
+  color: var(--vls-gold);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.vls-nav a {
+  display: block;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 3px;
+  border-left: 3px solid transparent;
+  transition: background 0.12s ease;
+}
+
+.vls-nav a:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--vls-white);
+}
+
+.vls-nav a.active {
+  background: rgba(230, 194, 136, 0.14);
+  color: var(--vls-gold);
+  border-left-color: var(--vls-gold);
+}
+
+/* --------------------------------------------------------------------- */
+/* Main content area                                                     */
+/* --------------------------------------------------------------------- */
+
+.vls-main { flex: 1; padding: 32px 40px; max-width: 1100px; }
+
+.vls-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--vls-gray-light);
+}
+
+.vls-topbar h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--vls-maroon);
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.vls-user-chip {
+  font-size: 12.5px;
+  color: var(--vls-gray);
+  background: var(--vls-white);
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--vls-gray-light);
+}
+
+.vls-signout {
+  background: none;
+  border: 1px solid var(--vls-gray-light);
+  color: var(--vls-maroon);
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.vls-signout:hover { background: var(--vls-gray-light); }
+
+/* --------------------------------------------------------------------- */
+/* Stat cards                                                             */
+/* --------------------------------------------------------------------- */
+
+.vls-cards { display: flex; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+
+.vls-card {
+  background: var(--vls-white);
+  border: 1px solid var(--vls-gray-light);
+  border-radius: var(--vls-radius);
+  padding: 16px 20px;
+  flex: 1;
+  min-width: 130px;
+  box-shadow: var(--vls-shadow);
+}
+
+.vls-card .label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--vls-gold-dark);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.vls-card .value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--vls-maroon);
+}
+
+.vls-card .value.warn { color: var(--vls-danger); }
+.vls-card .value.ok { color: var(--vls-success); }
+
+/* --------------------------------------------------------------------- */
+/* Tables                                                                 */
+/* --------------------------------------------------------------------- */
+
+table.vls-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--vls-white);
+  border-radius: var(--vls-radius);
+  overflow: hidden;
+  box-shadow: var(--vls-shadow);
+}
+
+table.vls-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--vls-gold-dark);
+  font-weight: 700;
+  padding: 13px 16px;
+  background: var(--vls-cream);
+  border-bottom: 2px solid var(--vls-gray-light);
+  cursor: default;
+}
+
+table.vls-table th.sortable { cursor: pointer; user-select: none; }
+table.vls-table th.sortable:hover { color: var(--vls-maroon); }
+
+table.vls-table td {
+  padding: 13px 16px;
+  font-size: 13.5px;
+  border-bottom: 1px solid var(--vls-gray-light);
+  color: var(--vls-ink);
+}
+
+table.vls-table tr:last-child td { border-bottom: none; }
+table.vls-table tr:hover td { background: rgba(230, 194, 136, 0.06); }
+
+/* --------------------------------------------------------------------- */
+/* Badges                                                                 */
+/* --------------------------------------------------------------------- */
+
+.vls-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.vls-badge.court { background: #eef1fb; color: #33418a; }
+.vls-badge.blocked { background: var(--vls-danger-bg); color: var(--vls-danger); }
+.vls-badge.ok { background: #e8f3ed; color: var(--vls-success); }
+
+/* --------------------------------------------------------------------- */
+/* Links, buttons, forms                                                 */
+/* --------------------------------------------------------------------- */
+
+a.vls-link {
+  color: var(--vls-maroon);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+a.vls-link:hover { text-decoration: underline; }
+
+.vls-btn {
+  background: var(--vls-maroon);
+  color: var(--vls-white);
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.vls-btn:hover { background: var(--vls-maroon-light); }
+.vls-btn:disabled { background: var(--vls-gray-light); color: var(--vls-gray); cursor: not-allowed; }
+
+.vls-input, .vls-select {
+  border: 1px solid var(--vls-gray-light);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 13.5px;
+  color: var(--vls-ink);
+  background: var(--vls-white);
+  font-family: inherit;
+}
+.vls-input:focus, .vls-select:focus {
+  outline: none;
+  border-color: var(--vls-gold-dark);
+  box-shadow: 0 0 0 3px rgba(230, 194, 136, 0.25);
+}

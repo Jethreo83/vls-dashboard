@@ -51,70 +51,76 @@ export default function TaskManagerPage() {
     }
   };
 
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) return <p style={{ color: 'var(--vls-danger)' }}>{error}</p>;
   if (!tasks) return <p>Loading…</p>;
 
   const active = tasks.filter((t) => t.status === 'open' || t.status === 'in_progress');
   const done = tasks.filter((t) => t.status === 'done' || t.status === 'cancelled');
+  const overdue = active.filter((t) => t.due_date && t.due_date.slice(0, 10) < new Date().toISOString().slice(0, 10));
 
   return (
     <div>
-      <h2>Task Manager</h2>
+      <div className="vls-cards">
+        <div className="vls-card"><div className="label">Active</div><div className="value">{active.length}</div></div>
+        <div className="vls-card"><div className="label">Overdue</div><div className={`value ${overdue.length > 0 ? 'warn' : ''}`}>{overdue.length}</div></div>
+        <div className="vls-card"><div className="label">Completed</div><div className="value ok">{done.length}</div></div>
+      </div>
 
       <form onSubmit={handleCreate} style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
         <input
           type="text"
+          className="vls-input"
           placeholder="New task title"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          style={{ flex: 1, minWidth: 200, padding: 6 }}
+          style={{ flex: 1, minWidth: 200 }}
         />
-        <select value={newPriority} onChange={(e) => setNewPriority(e.target.value as Task['priority'])} style={{ padding: 6 }}>
+        <select className="vls-select" value={newPriority} onChange={(e) => setNewPriority(e.target.value as Task['priority'])}>
           {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
         </select>
         <input
           type="date"
+          className="vls-input"
           value={newDueDate}
           onChange={(e) => setNewDueDate(e.target.value)}
-          style={{ padding: 6 }}
         />
-        <button type="submit" disabled={creating || !newTitle.trim()}>Add Task</button>
+        <button type="submit" className="vls-btn" disabled={creating || !newTitle.trim()}>Add Task</button>
       </form>
 
-      <h3>Active ({active.length})</h3>
+      <h3 style={{ fontSize: 15, color: 'var(--vls-maroon)', marginBottom: 12 }}>Active ({active.length})</h3>
       <TaskTable tasks={active} onStatusChange={handleStatusChange} />
 
-      <h3 style={{ marginTop: 32, color: '#666' }}>Completed / Cancelled ({done.length})</h3>
+      <h3 style={{ marginTop: 32, fontSize: 15, color: 'var(--vls-gray)' }}>Completed / Cancelled ({done.length})</h3>
       <TaskTable tasks={done} onStatusChange={handleStatusChange} />
     </div>
   );
 }
 
 function TaskTable({ tasks, onStatusChange }: { tasks: Task[]; onStatusChange: (t: Task, s: Task['status']) => void }) {
-  if (tasks.length === 0) return <p style={{ color: '#666' }}>None.</p>;
+  if (tasks.length === 0) return <p style={{ color: 'var(--vls-gray)' }}>None.</p>;
   const today = new Date().toISOString().slice(0, 10);
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <table className="vls-table">
       <thead>
-        <tr style={{ textAlign: 'left', borderBottom: '2px solid #ccc' }}>
-          <th style={{ padding: 8 }}>Title</th>
-          <th style={{ padding: 8 }}>Priority</th>
-          <th style={{ padding: 8 }}>Due</th>
-          <th style={{ padding: 8 }}>Status</th>
+        <tr>
+          <th>Title</th>
+          <th>Priority</th>
+          <th>Due</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
         {tasks.map((t) => {
           const isOverdue = t.due_date && t.due_date.slice(0, 10) < today && (t.status === 'open' || t.status === 'in_progress');
           return (
-            <tr key={t.id} style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: 8 }}>{t.title}</td>
-              <td style={{ padding: 8, textTransform: 'capitalize' }}>{t.priority}</td>
-              <td style={{ padding: 8, color: isOverdue ? '#b00' : undefined }}>
+            <tr key={t.id}>
+              <td>{t.title}</td>
+              <td style={{ textTransform: 'capitalize' }}>{t.priority}</td>
+              <td style={{ color: isOverdue ? 'var(--vls-danger)' : undefined, fontWeight: isOverdue ? 600 : undefined }}>
                 {t.due_date ? t.due_date.slice(0, 10) : '—'}{isOverdue ? ' (overdue)' : ''}
               </td>
-              <td style={{ padding: 8 }}>
-                <select value={t.status} onChange={(e) => onStatusChange(t, e.target.value as Task['status'])}>
+              <td>
+                <select className="vls-select" value={t.status} onChange={(e) => onStatusChange(t, e.target.value as Task['status'])}>
                   {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
                 </select>
               </td>
