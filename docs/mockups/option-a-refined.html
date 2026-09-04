@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: #f7f5f0;
+    color: #1c2333;
+  }
+  .app { display: flex; min-height: 600px; }
+  .sidebar {
+    width: 220px;
+    background: linear-gradient(180deg, #0f1729 0%, #1c2846 100%);
+    color: #d4af7a;
+    padding: 28px 20px;
+    flex-shrink: 0;
+  }
+  .sidebar .brand {
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    color: #f0e6d2;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .sidebar .brand-sub {
+    font-size: 11px;
+    color: #8a95b3;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .sidebar nav a {
+    display: block;
+    color: #c9cee0;
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    border-left: 3px solid transparent;
+  }
+  .sidebar nav a.active {
+    background: rgba(212, 175, 122, 0.12);
+    color: #f0e6d2;
+    border-left: 3px solid #d4af7a;
+  }
+  .main { flex: 1; padding: 32px 40px; }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0dbcc;
+  }
+  h1 { font-size: 26px; font-weight: 600; color: #0f1729; }
+  .user-chip {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    color: #6b7280;
+  }
+  .cards { display: flex; gap: 16px; margin-bottom: 32px; }
+  .card {
+    background: #fff;
+    border: 1px solid #e5e0d0;
+    border-radius: 10px;
+    padding: 18px 22px;
+    flex: 1;
+    box-shadow: 0 1px 3px rgba(15,23,41,0.06);
+  }
+  .card .label {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9a8f6f;
+    margin-bottom: 6px;
+  }
+  .card .value { font-size: 28px; font-weight: 600; color: #0f1729; }
+  .card .value.warn { color: #a3402f; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,41,0.06); }
+  th {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #9a8f6f;
+    padding: 14px 18px;
+    border-bottom: 2px solid #e5e0d0;
+    background: #fbf9f4;
+  }
+  td { padding: 14px 18px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; border-bottom: 1px solid #eee7d8; color: #2a2f3f; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge.jp { background: #eaf0ff; color: #2451c9; }
+  .badge.blocked { background: #fbe7e3; color: #a3402f; }
+  a.view { color: #a3402f; text-decoration: none; font-weight: 600; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">Victory Legal</div>
+    <div class="brand-sub">Solutions Dashboard</div>
+    <nav>
+      <a class="active">Cases</a>
+      <a>Legal Deadlines</a>
+      <a>Tasks</a>
+      <a>Analytics</a>
+    </nav>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h1>Cases</h1>
+      <span class="user-chip">jed@vlslawfirm.com · admin</span>
+    </div>
+    <div class="cards">
+      <div class="card"><div class="label">Total Cases</div><div class="value">2</div></div>
+      <div class="card"><div class="label">Blocked</div><div class="value warn">2</div></div>
+      <div class="card"><div class="label">Overdue Tasks</div><div class="value warn">2</div></div>
+      <div class="card"><div class="label">Fee-Shifting</div><div class="value">2 / 2</div></div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Type</th><th>Court</th><th>State</th><th>Fee-Shifting</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Unpaid Repairs</td><td><span class="badge jp">JP</span></td><td>Discovery Open</td><td>Yes</td><td><span class="badge blocked">⚠ Blocked</span> <a class="view" href="#">View →</a></td></tr>
+        <tr><td>2</td><td>Unpaid Repairs</td><td><span class="badge jp">JP</span></td><td>Intake</td><td>Yes</td><td><span class="badge blocked">⚠ Blocked</span> <a class="view" href="#">View →</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
