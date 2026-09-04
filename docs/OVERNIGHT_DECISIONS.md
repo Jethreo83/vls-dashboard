@@ -6,7 +6,7 @@ Status values: PENDING (waiting on Jed), APPROVED (Jed said yes, now doing it), 
 
 ## Current queue
 
-(empty as of 2026-09-04 - nothing pending right now)
+- PENDING: complete-collision needs Jed's decision on receptionist permission scope for Complete Collision (what a receptionist can see/edit vs manager/owner). Bot is correctly holding off building the role-permission logic itself, but is proceeding on the safe subset (role enum, provisioning table shape) that doesn't require knowing the final boundaries.
 
 ## Log
 
