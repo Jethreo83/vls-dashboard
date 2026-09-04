@@ -3,10 +3,11 @@
 // requireRole has a real caller and admins can see who currently has access.
 import { Router, Request, Response } from 'express';
 import { unsafeOwnerQuery } from '../db';
+import { ah } from '../asyncHandler';
 
 export const staffRouter = Router();
 
-staffRouter.get('/', async (_req: Request, res: Response) => {
+staffRouter.get('/', ah(async (_req: Request, res: Response) => {
   const rows = await unsafeOwnerQuery(async (client) => {
     const result = await client.query(
       `SELECT id, google_email, role, active, created_at FROM vls.staff_user ORDER BY id`
@@ -14,4 +15,4 @@ staffRouter.get('/', async (_req: Request, res: Response) => {
     return result.rows;
   });
   res.json(rows);
-});
+}));

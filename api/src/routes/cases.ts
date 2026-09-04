@@ -5,6 +5,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { withRole } from '../db';
+import { ah } from '../asyncHandler';
 
 export const casesRouter = Router();
 
@@ -23,7 +24,7 @@ const createCaseSchema = z.object({
   created_by: z.string().min(1),
 });
 
-casesRouter.post('/', async (req: Request, res: Response) => {
+casesRouter.post('/', ah(async (req: Request, res: Response) => {
   const parsed = createCaseSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'invalid_body', details: parsed.error.flatten() });
@@ -48,9 +49,9 @@ casesRouter.post('/', async (req: Request, res: Response) => {
   } catch (err: any) {
     res.status(400).json({ error: 'insert_failed', message: err.message });
   }
-});
+}));
 
-casesRouter.get('/:id', async (req: Request, res: Response) => {
+casesRouter.get('/:id', ah(async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: 'invalid_id' });
   const row = await withRole('vls_app', async (client) => {
@@ -61,9 +62,9 @@ casesRouter.get('/:id', async (req: Request, res: Response) => {
   });
   if (!row) return res.status(404).json({ error: 'not_found' });
   res.json(row);
-});
+}));
 
-casesRouter.get('/', async (req: Request, res: Response) => {
+casesRouter.get('/', ah(async (req: Request, res: Response) => {
   const courtType = typeof req.query.court_type === 'string' ? req.query.court_type : undefined;
   const rows = await withRole('vls_app', async (client) => {
     const result = courtType
@@ -72,7 +73,7 @@ casesRouter.get('/', async (req: Request, res: Response) => {
     return result.rows;
   });
   res.json(rows);
-});
+}));
 
 // ---------------------------------------------------------------------------
 // Events — the ONLY way current_state changes. Body validated against the
@@ -95,7 +96,7 @@ const createEventSchema = z.object({
   path: ['confirmed_by'],
 });
 
-casesRouter.post('/:id/events', async (req: Request, res: Response) => {
+casesRouter.post('/:id/events', ah(async (req: Request, res: Response) => {
   const caseId = Number(req.params.id);
   if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
 
@@ -123,9 +124,9 @@ casesRouter.post('/:id/events', async (req: Request, res: Response) => {
     // text is more useful to a caller than a generic 400.
     res.status(409).json({ error: 'invalid_transition', message: err.message });
   }
-});
+}));
 
-casesRouter.get('/:id/events', async (req: Request, res: Response) => {
+casesRouter.get('/:id/events', ah(async (req: Request, res: Response) => {
   const caseId = Number(req.params.id);
   if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
   const rows = await withRole('vls_app', async (client) => {
@@ -135,13 +136,13 @@ casesRouter.get('/:id/events', async (req: Request, res: Response) => {
     return result.rows;
   });
   res.json(rows);
-});
+}));
 
 // Blocked-cases feed — direct pass-through of the vls.blocked_cases view.
-casesRouter.get('/status/blocked', async (_req: Request, res: Response) => {
+casesRouter.get('/status/blocked', ah(async (_req: Request, res: Response) => {
   const rows = await withRole('vls_app', async (client) => {
     const result = await client.query(`SELECT * FROM vls.blocked_cases`);
     return result.rows;
   });
   res.json(rows);
-});
+}));

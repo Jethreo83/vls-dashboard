@@ -7,8 +7,19 @@ import { financialsRouter } from './routes/financials';
 import { pool } from './db';
 import { handleGoogleLogin, requireAuth, requireRole } from './auth';
 import { staffRouter } from './routes/staff';
+import { tasksRouter } from './routes/tasks';
 
 dotenv.config();
+
+// Process-level safety net: log and keep the server alive instead of
+// crashing on any rejection/exception that somehow still slips through
+// asyncHandler.ts's per-route wrapping.
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED REJECTION (server stayed up):', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION (server stayed up):', err);
+});
 
 const app = express();
 // Restrict to the dashboard's own origin(s) — comma-separated in .env so
@@ -33,10 +44,13 @@ app.post('/auth/google', handleGoogleLogin);
 app.use('/cases', requireAuth, casesRouter);
 app.use('/financials', requireAuth, financialsRouter);
 app.use('/staff', requireAuth, requireRole('admin'), staffRouter);
+app.use('/tasks', requireAuth, tasksRouter);
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err);
-  res.status(500).json({ error: 'internal_error' });
+  if (!res.headersSent) {
+    res.status(500).json({ error: 'internal_error', message: err.message });
+  }
 });
 
 const port = Number(process.env.PORT) || 3001;

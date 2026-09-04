@@ -88,3 +88,4 @@ WHERE status IN ('open', 'in_progress')
 
 GRANT SELECT, INSERT, UPDATE ON vls.task TO vls_app;
 GRANT USAGE, SELECT ON SEQUENCE vls.task_id_seq TO vls_app;
+GRANT SELECT ON vls.overdue_tasks TO vls_app;

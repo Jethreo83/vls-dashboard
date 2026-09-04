@@ -3,6 +3,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { withRole } from '../db';
+import { ah } from '../asyncHandler';
 
 export const financialsRouter = Router();
 
@@ -26,7 +27,7 @@ const createCostSchema = z.object({
   path: ['confirmed_by'],
 });
 
-financialsRouter.post('/costs', async (req: Request, res: Response) => {
+financialsRouter.post('/costs', ah(async (req: Request, res: Response) => {
   const parsed = createCostSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'invalid_body', details: parsed.error.flatten() });
@@ -51,9 +52,9 @@ financialsRouter.post('/costs', async (req: Request, res: Response) => {
     // Surfaces the recoverable/fee-shifting-eligible trigger rejection.
     res.status(409).json({ error: 'insert_rejected', message: err.message });
   }
-});
+}));
 
-financialsRouter.get('/costs/:caseId', async (req: Request, res: Response) => {
+financialsRouter.get('/costs/:caseId', ah(async (req: Request, res: Response) => {
   const caseId = Number(req.params.caseId);
   if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
   const rows = await withRole('vls_app', async (client) => {
@@ -63,7 +64,7 @@ financialsRouter.get('/costs/:caseId', async (req: Request, res: Response) => {
     return result.rows;
   });
   res.json(rows);
-});
+}));
 
 const upsertFinancialSchema = z.object({
   gross_recovery: z.number().nonnegative().optional(),
@@ -73,7 +74,7 @@ const upsertFinancialSchema = z.object({
   updated_by: z.string().min(1),
 });
 
-financialsRouter.put('/:caseId', async (req: Request, res: Response) => {
+financialsRouter.put('/:caseId', ah(async (req: Request, res: Response) => {
   const caseId = Number(req.params.caseId);
   if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
   const parsed = upsertFinancialSchema.safeParse(req.body);
@@ -102,10 +103,10 @@ financialsRouter.put('/:caseId', async (req: Request, res: Response) => {
   } catch (err: any) {
     res.status(409).json({ error: 'update_rejected', message: err.message });
   }
-});
+}));
 
 // The one-button settlement breakdown — direct pass-through of the view.
-financialsRouter.get('/breakdown/:caseId', async (req: Request, res: Response) => {
+financialsRouter.get('/breakdown/:caseId', ah(async (req: Request, res: Response) => {
   const caseId = Number(req.params.caseId);
   if (!Number.isInteger(caseId)) return res.status(400).json({ error: 'invalid_id' });
   const row = await withRole('vls_app', async (client) => {
@@ -116,12 +117,12 @@ financialsRouter.get('/breakdown/:caseId', async (req: Request, res: Response) =
   });
   if (!row) return res.status(404).json({ error: 'not_found' });
   res.json(row);
-});
+}));
 
-financialsRouter.get('/unreconciled', async (_req: Request, res: Response) => {
+financialsRouter.get('/unreconciled', ah(async (_req: Request, res: Response) => {
   const rows = await withRole('vls_app', async (client) => {
     const result = await client.query(`SELECT * FROM vls.unreconciled_financials`);
     return result.rows;
   });
   res.json(rows);
-});
+}));
