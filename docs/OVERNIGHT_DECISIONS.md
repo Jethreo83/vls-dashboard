@@ -13,6 +13,8 @@ Status values: PENDING (waiting on Jed), APPROVED (Jed said yes, now doing it), 
 
 ## Log
 
+- 2026-09-04: RESOLVED - shared document generator now genuinely built. elektrica-dashboard self-caught drift (had built it in migration 005 inside elektrica schema, against convention #2's explicit warning), relocated to platform.document_template/document/outbound_log via ALTER...SET SCHEMA (zero data movement), verified FK chain + append-only trigger survived. Complete Collision notified to build against these tables once they need real document rendering, not invent their own.
+
 - 2026-09-04: shell-dashboard ADR-001 approved with 5 answered decisions: (1) true SSO, one JWT all dashboard APIs verify directly - not a redirect/exchange-token handoff, (2) Elektrica's door omitted from launcher until it has its own staff_user table (shell bot's own scope-correct proposal), (3) domains for Collision/Elektrica still need confirming with Jed before Decision 4's mapping is built for real, (4) real routing-level entitlement enforcement, not UI-only hiding, (5) accepted VLS's existing tradeoff (stateless 8h JWT, no logout blocklist) rather than building token revocation now - revisit if financials needs harder guarantees later.
 
 - 2026-09-04: SPAWNED new locked bot `shell-dashboard` per Jed's instruction, for the thin login+launcher shell (parallel-build instruction step 2). Repo github.com/Jethreo83/shell-dashboard (public from creation), profile at $LOCALAPPDATA/hermes/profiles/shell-dashboard, model Sonnet 5, memory NOT shared with elektrica-dashboard/complete-collision junction per Jed's explicit choice. First task sent: read shared conventions + VLS's auth pattern, produce an ADR before building.
