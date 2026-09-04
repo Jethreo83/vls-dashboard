@@ -36,17 +36,24 @@ staffRouter.post('/', ah(async (req: Request, res: Response) => {
   }
   const { google_email, role } = parsed.data;
   const actingAdmin = req.staff?.google_email ?? 'unknown_admin';
-  const row = await unsafeOwnerQuery(async (client) => {
-    const result = await client.query(
-      `INSERT INTO vls.staff_user (google_email, role, created_by)
-       VALUES ($1, $2::vls.staff_role, $3)
-       ON CONFLICT (google_email) DO UPDATE SET role = EXCLUDED.role, active = true
-       RETURNING id, google_email, role, active, created_at`,
-      [google_email, role, actingAdmin]
-    );
-    return result.rows[0];
-  });
-  res.status(201).json(row);
+  try {
+    const row = await unsafeOwnerQuery(async (client) => {
+      const result = await client.query(
+        `INSERT INTO vls.staff_user (google_email, role, created_by)
+         VALUES ($1, $2::vls.staff_role, $3)
+         ON CONFLICT (google_email) DO UPDATE SET role = EXCLUDED.role, active = true
+         RETURNING id, google_email, role, active, created_at`,
+        [google_email, role, actingAdmin]
+      );
+      return result.rows[0];
+    });
+    res.status(201).json(row);
+  } catch (err: any) {
+    // Surfaces the DB's own domain-restriction constraint (found live:
+    // this route had no try/catch at all, so a rejected insert leaked a
+    // raw 500 with the DB's constraint name instead of a clean 400).
+    res.status(400).json({ error: 'provision_rejected', message: err.message });
+  }
 }));
 
 const deactivateSchema = z.object({
