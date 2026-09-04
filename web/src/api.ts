@@ -38,6 +38,13 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 
 // ---------------------------------------------------------------------------
 // Typed shapes matching the API's response shapes.
+//
+// IMPORTANT: node-postgres serializes bigint columns (case.id, task.id, etc.)
+// as STRINGS in JSON, not numbers, to avoid silent precision loss above
+// Number.MAX_SAFE_INTEGER. The types below say `number` for ergonomics, but
+// every accessor that returns rows with an id must coerce it with Number()
+// before the frontend does any comparison/sort/Set-lookup on it — found live:
+// blockedIds.has(c.id) was silently always false because "1" !== 1.
 // ---------------------------------------------------------------------------
 
 export interface Case {
@@ -93,17 +100,30 @@ export interface Task {
   created_by: string;
 }
 
+function coerceCaseIds(rows: Case[]): Case[] {
+  return rows.map((c) => ({ ...c, id: Number(c.id) }));
+}
+
+function coerceTaskIds(rows: Task[]): Task[] {
+  return rows.map((t) => ({
+    ...t,
+    id: Number(t.id),
+    case_id: t.case_id === null ? null : Number(t.case_id),
+  }));
+}
+
 export const api = {
-  listCases: () => apiFetch<Case[]>('/cases'),
-  getCase: (id: number) => apiFetch<Case>(`/cases/${id}`),
+  listCases: () => apiFetch<Case[]>('/cases').then(coerceCaseIds),
+  getCase: (id: number) => apiFetch<Case>(`/cases/${id}`).then((c) => ({ ...c, id: Number(c.id) })),
   getCaseEvents: (id: number) => apiFetch<CaseEvent[]>(`/cases/${id}/events`),
   getBreakdown: (id: number) =>
     apiFetch<SettlementBreakdown>(`/financials/breakdown/${id}`).catch((e) => {
       if (e instanceof ApiError && e.status === 404) return null;
       throw e;
     }),
-  getBlockedCases: () => apiFetch<any[]>('/cases/status/blocked'),
-  listTasks: () => apiFetch<Task[]>('/tasks'),
+  getBlockedCases: () =>
+    apiFetch<any[]>('/cases/status/blocked').then((rows) => rows.map((r) => ({ ...r, id: Number(r.id) }))),
+  listTasks: () => apiFetch<Task[]>('/tasks').then(coerceTaskIds),
   createTask: (body: { title: string; case_id?: number; priority?: string; due_date?: string; created_by: string }) =>
     apiFetch<Task>('/tasks', { method: 'POST', body: JSON.stringify(body) }),
   updateTask: (id: number, body: Partial<Pick<Task, 'title' | 'status' | 'priority' | 'due_date'>>) =>
