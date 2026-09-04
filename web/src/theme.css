@@ -41,39 +41,18 @@ body {
   width: 220px;
   flex-shrink: 0;
   background: linear-gradient(180deg, var(--vls-maroon) 0%, var(--vls-maroon-dark) 100%);
-  padding: 28px 18px;
+  padding: 0 18px 28px;
   color: var(--vls-white);
 }
 
-.vls-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 36px;
+.vls-brand-logo {
+  margin: 0 -18px 24px;
 }
 
-.vls-brand-mark {
-  width: 30px;
-  height: 30px;
-  flex-shrink: 0;
-}
-
-.vls-brand-text {
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: 0.3px;
-  color: var(--vls-white);
-  line-height: 1.15;
-}
-
-.vls-brand-text .sub {
+.vls-brand-logo img {
   display: block;
-  font-weight: 500;
-  font-size: 9.5px;
-  letter-spacing: 1.2px;
-  color: var(--vls-gold);
-  text-transform: uppercase;
-  margin-top: 2px;
+  width: 100%;
+  height: auto;
 }
 
 .vls-nav a {

@@ -1,5 +1,4 @@
 import { useAuth } from '../auth';
-import { VlsMark } from '../VlsMark';
 
 export default function LoginPage() {
   const { loading, error } = useAuth();
@@ -12,17 +11,11 @@ export default function LoginPage() {
         justifyContent: 'center',
         height: '100vh',
         gap: 20,
-        background: 'linear-gradient(180deg, #800020 0%, #5c0017 100%)',
+        background: '#800020',
       }}
     >
-      <VlsMark size={56} background={false} />
-      <div style={{ textAlign: 'center' }}>
-        <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: '-0.2px' }}>Victory Legal Solutions</h1>
-        <p style={{ color: '#d4b896', fontSize: 12, letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: 4, fontWeight: 600 }}>
-          Dashboard
-        </p>
-      </div>
-      <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13.5 }}>Sign in with your @vlslawfirm.com Google account.</p>
+      <img src="/vls-logo.jpg" alt="Victory Legal Solutions" style={{ width: 260, borderRadius: 6 }} />
+      <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13.5 }}>Sign in with your @vlslawfirm.com Google account.</p>
       <div style={{ background: '#fff', borderRadius: 8, padding: 4 }}>
         <div id="google-signin-button" />
       </div>

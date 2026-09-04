@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth';
-import { VlsMark } from './VlsMark';
 import LoginPage from './pages/LoginPage';
 import CaseListPage from './pages/CaseListPage';
 import CaseDetailPage from './pages/CaseDetailPage';
@@ -24,12 +23,8 @@ function AppShell() {
   return (
     <div className="vls-app">
       <aside className="vls-sidebar">
-        <div className="vls-brand">
-          <VlsMark size={30} />
-          <div className="vls-brand-text">
-            Victory Legal
-            <span className="sub">Solutions Dashboard</span>
-          </div>
+        <div className="vls-brand-logo">
+          <img src="/vls-logo.jpg" alt="Victory Legal Solutions" />
         </div>
         <nav className="vls-nav">
           {NAV_ITEMS.map((item) => (
