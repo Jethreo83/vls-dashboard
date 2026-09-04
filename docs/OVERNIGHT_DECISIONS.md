@@ -6,7 +6,8 @@ Status values: PENDING (waiting on Jed), APPROVED (Jed said yes, now doing it), 
 
 ## Current queue
 
-(empty - both prior items resolved below)
+- PENDING: complete-collision needs your call on whether job.cost totals (gross_revenue, direct_ro_costs, labor_cost, rent_utility_share) should become fully derived from the new itemized collision.cost_entry ledger once itemized entry is standard, or coexist indefinitely (cost_entry for detail, job's columns as the human-confirmed number of record). From migration 006 (still untagged/staging-only, not yet promoted).
+- NOTE (not a decision, a process gap): a second, unattended session of the complete-collision bot profile ran concurrently without either session knowing - it built its own migration 006 while I was mid-task with a different 006. No collision damage (correctly caught via git log, files renumbered cleanly, nothing overwritten), but there's currently no way for either session to know the other is running. Worth deciding later whether that matters enough to fix (e.g. a lock file, or just "check git log first" discipline).
 
 ## Log
 
