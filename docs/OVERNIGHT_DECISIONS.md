@@ -12,6 +12,8 @@ Status values: PENDING (waiting on Jed), APPROVED (Jed said yes, now doing it), 
 
 ## Log
 
+- 2026-09-05: RESOLVED - elektrica.vehicle's class/tracking_system contradiction. Bot found the real Fleet info sheet has no such columns, contradicting an earlier "confirmed by Jed" note - correctly refused to guess and asked instead of promoting bad schema. Jed confirmed: they don't exist as separate columns, drop them from the schema, derive/infer differently at the app layer if needed rather than storing from a nonexistent Sheet field.
+
 - 2026-09-05: SPAWNED new locked bot `ccc-estimator` per Jed's decision: Jed obtained written permission from CCC ONE for a bot to hold its own CCC ONE user login and write repair estimates directly. Project-locked to CCC ONE estimate-writing only - explicitly does NOT cover bulk data aggregation, reports "to anyone," or broader third-party access (those Master License Agreement restrictions still apply). Draft-and-hold on first real estimates until a track record is established, mirroring Jed's standing client-material rule. Awaiting Jed to provision a real CCC ONE username/password for the bot's own account.
 
 - 2026-09-04: Built real write UI for VLS cases (NewCasePage, CaseDetailPage's Log Event section, GET /cases/:id/valid-next-states endpoint). Closes the API-only gap - case create/state-advance now has a browser UI. Verified end-to-end against live staging: create -> valid-next-states -> log event -> current_state genuinely advances, invalid transitions correctly rejected with the exact DB trigger message surfaced to the user. Fixed a real bug found while testing: node-postgres doesn't auto-parse array-typed scalar function results (needed UNNEST). Tagged/pushed as ff541db.
