@@ -140,7 +140,17 @@ function coerceTaskIds(rows: Task[]): Task[] {
 export const api = {
   listCases: () => apiFetch<Case[]>('/cases').then(coerceCaseIds),
   getCase: (id: number) => apiFetch<Case>(`/cases/${id}`).then((c) => ({ ...c, id: Number(c.id) })),
+  createCase: (body: {
+    case_type: string; cause_of_action?: string; is_first_party: boolean;
+    court_type: string; client_person_id?: number; intake_source?: string; created_by: string;
+  }) => apiFetch<Case>('/cases', { method: 'POST', body: JSON.stringify(body) }).then((c) => ({ ...c, id: Number(c.id) })),
   getCaseEvents: (id: number) => apiFetch<CaseEvent[]>(`/cases/${id}/events`),
+  getValidNextStates: (id: number) =>
+    apiFetch<{ current_state: string; valid_next_states: string[] }>(`/cases/${id}/valid-next-states`),
+  createCaseEvent: (id: number, body: {
+    event_type: string; source?: string; source_ref?: string;
+    confirmed?: boolean; confirmed_by?: string; notes?: string; created_by: string;
+  }) => apiFetch<CaseEvent>(`/cases/${id}/events`, { method: 'POST', body: JSON.stringify(body) }),
   getBreakdown: (id: number) =>
     apiFetch<SettlementBreakdown>(`/financials/breakdown/${id}`).catch((e) => {
       if (e instanceof ApiError && e.status === 404) return null;

@@ -132,6 +132,35 @@ casesRouter.post('/:id/events', ah(async (req: Request, res: Response) => {
   }
 }));
 
+// Valid next states for this case's current position — feeds the
+// frontend's "Log Event" dropdown so the UI only ever offers
+// transitions the DB trigger would actually accept. The trigger is
+// still the real enforcement (a stale/cached list here is a UX
+// annoyance, not a correctness bug), but offering the wrong options
+// blind is a bad user experience worth avoiding.
+casesRouter.get('/:id/valid-next-states', ah(async (req: Request, res: Response) => {
+  const caseId = parseId(req.params.id);
+  if (caseId === null) return res.status(400).json({ error: 'invalid_id' });
+  const result = await withRole('vls_app', async (client) => {
+    const caseRow = await client.query(
+      `SELECT court_type, current_state FROM vls.case WHERE id = $1`, [caseId]
+    );
+    if (caseRow.rows.length === 0) return null;
+    const { court_type, current_state } = caseRow.rows[0];
+    // vls.valid_next_states returns a Postgres array, but node-postgres
+    // does not auto-parse array-typed scalar function results the way it
+    // does for array-typed COLUMNS — it comes back as the raw "{a,b,c}"
+    // text literal. UNNEST it in SQL instead of parsing that string in JS.
+    const states = await client.query(
+      `SELECT unnest(vls.valid_next_states($1::vls.court_type, $2::vls.case_state)) AS state`,
+      [court_type, current_state]
+    );
+    return { current_state, valid_next_states: states.rows.map((r) => r.state) as string[] };
+  });
+  if (result === null) return res.status(404).json({ error: 'not_found' });
+  res.json(result);
+}));
+
 casesRouter.get('/:id/events', ah(async (req: Request, res: Response) => {
   const caseId = parseId(req.params.id);
   if (caseId === null) return res.status(400).json({ error: 'invalid_id' });

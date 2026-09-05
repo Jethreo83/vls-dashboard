@@ -1,24 +1,66 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, type Case, type CaseEvent, type SettlementBreakdown } from '../api';
+import { useAuth } from '../auth';
 
 export default function CaseDetailPage() {
+  const { staff } = useAuth();
   const { id } = useParams();
   const caseId = Number(id);
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [events, setEvents] = useState<CaseEvent[] | null>(null);
   const [breakdown, setBreakdown] = useState<SettlementBreakdown | null>(null);
+  const [validNextStates, setValidNextStates] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    Promise.all([api.getCase(caseId), api.getCaseEvents(caseId), api.getBreakdown(caseId)])
-      .then(([c, e, b]) => {
+  const [selectedState, setSelectedState] = useState('');
+  const [eventNotes, setEventNotes] = useState('');
+  const [loggingEvent, setLoggingEvent] = useState(false);
+  const [eventError, setEventError] = useState<string | null>(null);
+
+  const load = () => {
+    Promise.all([
+      api.getCase(caseId),
+      api.getCaseEvents(caseId),
+      api.getBreakdown(caseId),
+      api.getValidNextStates(caseId).catch(() => ({ current_state: '', valid_next_states: [] })),
+    ])
+      .then(([c, e, b, n]) => {
         setCaseData(c);
         setEvents(e);
         setBreakdown(b);
+        setValidNextStates(n.valid_next_states);
+        setSelectedState(n.valid_next_states[0] ?? '');
       })
       .catch((e) => setError(e.message));
-  }, [caseId]);
+  };
+
+  useEffect(load, [caseId]);
+
+  const handleLogEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedState || !staff) return;
+    setLoggingEvent(true);
+    setEventError(null);
+    try {
+      await api.createCaseEvent(caseId, {
+        event_type: selectedState,
+        source: 'manual',
+        confirmed: true,
+        confirmed_by: staff.google_email,
+        notes: eventNotes.trim() || undefined,
+        created_by: staff.google_email,
+      });
+      setEventNotes('');
+      load();
+    } catch (e: any) {
+      // Surfaces the DB trigger's own rejection message (e.g. the JP trap)
+      // rather than a generic error — that message IS the useful content.
+      setEventError(e.body?.message ?? e.message);
+    } finally {
+      setLoggingEvent(false);
+    }
+  };
 
   if (error) return <p style={{ color: 'var(--vls-danger)' }}>Failed to load case: {error}</p>;
   if (!caseData) return <p>Loading…</p>;
@@ -95,6 +137,48 @@ export default function CaseDetailPage() {
         ) : (
           <p style={{ color: 'var(--vls-gray)' }}>No events recorded yet.</p>
         )}
+      </section>
+
+      <section style={{ marginTop: 24 }}>
+        <h3 style={{ fontSize: 14, color: 'var(--vls-gold-dark)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 10 }}>
+          Log Event
+        </h3>
+        <div className="vls-card">
+          {validNextStates.length === 0 ? (
+            <p style={{ color: 'var(--vls-gray)', fontSize: 13.5 }}>
+              No further transitions available from <strong>{caseData.current_state.replace(/_/g, ' ')}</strong> —
+              this case is at a terminal state for its court track.
+            </p>
+          ) : (
+            <form onSubmit={handleLogEvent} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <label style={{ fontSize: 13.5 }}>
+                Advance to
+                <select
+                  className="vls-select"
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  style={{ width: '100%', marginTop: 4 }}
+                >
+                  {validNextStates.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                </select>
+              </label>
+              <label style={{ fontSize: 13.5 }}>
+                Notes <span style={{ color: 'var(--vls-gray)' }}>(optional)</span>
+                <textarea
+                  className="vls-input"
+                  value={eventNotes}
+                  onChange={(e) => setEventNotes(e.target.value)}
+                  rows={2}
+                  style={{ width: '100%', marginTop: 4, resize: 'vertical' }}
+                />
+              </label>
+              {eventError && <p style={{ color: 'var(--vls-danger)', fontSize: 13 }}>{eventError}</p>}
+              <button type="submit" className="vls-btn" disabled={loggingEvent} style={{ alignSelf: 'flex-start' }}>
+                {loggingEvent ? 'Logging…' : 'Log Event'}
+              </button>
+            </form>
+          )}
+        </div>
       </section>
     </div>
   );

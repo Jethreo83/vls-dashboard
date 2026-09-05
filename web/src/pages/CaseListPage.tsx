@@ -95,6 +95,10 @@ export default function CaseListPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        <Link to="/cases/new" className="vls-btn" style={{ textDecoration: 'none' }}>+ New Case</Link>
+      </div>
+
       <div className="vls-cards">
         <div className="vls-card"><div className="label">Total Cases</div><div className="value">{cases.length}</div></div>
         <div className="vls-card"><div className="label">Blocked</div><div className={`value ${blockedCount > 0 ? 'warn' : ''}`}>{blockedCount}</div></div>

@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './auth';
 import LoginPage from './pages/LoginPage';
 import CaseListPage from './pages/CaseListPage';
 import CaseDetailPage from './pages/CaseDetailPage';
+import NewCasePage from './pages/NewCasePage';
 import LegalDeadlinesPage from './pages/LegalDeadlinesPage';
 import TaskManagerPage from './pages/TaskManagerPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -53,6 +54,7 @@ function AppShell() {
         </div>
         <Routes>
           <Route path="/" element={<CaseListPage />} />
+          <Route path="/cases/new" element={<NewCasePage />} />
           <Route path="/cases/:id" element={<CaseDetailPage />} />
           <Route path="/deadlines" element={<LegalDeadlinesPage />} />
           <Route path="/tasks" element={<TaskManagerPage />} />
